@@ -1,0 +1,680 @@
+parameter_meta:
+  viralrecon.samplesheet:
+    description: Path to comma-separated file containing information about the samples
+      you would like to analyse.
+    group: input_output_options
+    help: You will need to create a samplesheet with information about the samples
+      you would like to analyse before running the pipeline. Use this parameter to
+      specify its location. It has to be a comma-separated file with 3 columns, and
+      a header row. See [usage docs](https://nf-co.re/viralrecon/docs/usage#introduction).
+    hidden: false
+  viralrecon.platform:
+    description: NGS platform used to sequence the samples.
+    group: input_output_options
+    help: ''
+    hidden: false
+  viralrecon.protocol:
+    description: Specifies the type of protocol used for sequencing.
+    group: input_output_options
+    help: ''
+    hidden: false
+  viralrecon.outdir:
+    description: The output directory where the results will be saved. You have to
+      use absolute paths to storage on Cloud infrastructure.
+    group: input_output_options
+    help: ''
+    hidden: false
+  viralrecon.email:
+    description: Email address for completion summary.
+    group: input_output_options
+    help: Set this parameter to your e-mail address to get a summary e-mail with details
+      of the run sent to you when the workflow exits. If set in your user config file
+      (`~/.nextflow/config`) then you don't need to specify this on the command line
+      for every run.
+    hidden: false
+  viralrecon.genome:
+    description: Name of viral reference genome.
+    group: reference_genome_options
+    help: You can find the keys to specify the genomes in the [Genomes config file](https://github.com/nf-core/configs/blob/master/conf/pipeline/viralrecon/genomes.config).
+    hidden: false
+  viralrecon.fasta:
+    description: Path to FASTA genome file.
+    group: reference_genome_options
+    help: If you have no genome reference available, the pipeline can build one using
+      a FASTA file. This requires additional time and resources, so it's better to
+      use a pre-build index if possible.
+    hidden: false
+  viralrecon.gff:
+    description: Full path to GFF annotation file.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  viralrecon.bowtie2_index:
+    description: Path to directory or tar.gz archive for pre-built Bowtie2 index.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  viralrecon.primer_bed:
+    description: If the '--protocol amplicon' parameter is provided then iVar is used
+      to trim primer sequences after read alignment and before variant calling.
+    group: reference_genome_options
+    help: 'iVar uses the primer positions relative to the viral genome supplied in
+      this file to soft clip primer sequences from a coordinate sorted BAM file. The
+      file must be in BED format as highlighted below:
+
+
+      ```
+
+      MN908947.3 30 54 nCoV-2019_1_LEFT 60 -
+
+      MN908947.3 385 410 nCoV-2019_1_RIGHT 60 +
+
+      MN908947.3 320 342 nCoV-2019_2_LEFT 60 -
+
+      MN908947.3 704 726 nCoV-2019_2_RIGHT 60 +
+
+      ```'
+    hidden: false
+  viralrecon.primer_fasta:
+    description: If the '--protocol amplicon' parameter is provided then Cutadapt
+      is used to trim primer sequences from FastQ files before de novo assembly.
+    group: reference_genome_options
+    help: 'This file must contain amplicon primer sequences in Fasta format. An example
+      is shown below:
+
+
+      ```
+
+      >nCoV-2019_1_LEFT
+
+      ACCAACCAACTTTCGATCTCTTGT
+
+      >nCoV-2019_1_RIGHT
+
+      CATCTTTAAGATGTTGACGTGCCTC
+
+      >nCoV-2019_2_LEFT
+
+      CTGTTTTACAGGTTCGCGACGT
+
+      >nCoV-2019_2_RIGHT
+
+      TAAGGATCAGTGCCAAGCTCGT
+
+      ```'
+    hidden: false
+  viralrecon.primer_set:
+    description: The primer set to be used for the data analysis.
+    group: reference_genome_options
+    help: Where possible we are trying to collate links and settings for standard
+      primer sets to make it easier to run the pipeline with standard keys. See https://github.com/nf-core/configs/blob/master/conf/pipeline/viralrecon/genomes.config
+    hidden: false
+  viralrecon.primer_set_version:
+    description: Version of the primer set e.g. '--primer_set artic --primer_set_version
+      3'.
+    group: reference_genome_options
+    help: Where possible we are trying to collate links and settings for standard
+      primer sets to make it easier to run the pipeline with standard keys. See https://github.com/nf-core/configs/blob/master/conf/pipeline/viralrecon/genomes.config
+    hidden: false
+  viralrecon.primer_left_suffix:
+    description: Suffix used in name field of '--primer_bed' to indicate left primer
+      position.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  viralrecon.primer_right_suffix:
+    description: Suffix used in name field of '--primer_bed' to indicate right primer
+      position.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  viralrecon.save_reference:
+    description: If generated by the pipeline save reference genome related files
+      to the results folder.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  viralrecon.fastq_dir:
+    description: Path to a folder containing fastq files from the Nanopore run.
+    group: nanopore_options
+    help: e.g. '--fastq_dir ./20191023_1522_MC-110615_0_FAO93606_12bf9b4f/fastq_pass/'.
+    hidden: false
+  viralrecon.fast5_dir:
+    description: Path to a folder containing fast5 files from the Nanopore run.
+    group: nanopore_options
+    help: e.g. '--fast5_dir ./20191023_1522_MC-110615_0_FAO93606_12bf9b4f/fast5_pass/'.
+      Not required when running the pipeline with the '--artic_minion_caller medaka'
+      workflow.
+    hidden: false
+  viralrecon.sequencing_summary:
+    description: Sequencing summary file generated after Nanopore run completion.
+    group: nanopore_options
+    help: ' e.g. ''--sequencing_summary ./20191023_1522_MC-110615_0_FAO93606_12bf9b4f/sequencing_summary.txt''.
+      Not required when running the pipeline with the ''--artic_minion_caller medaka''
+      workflow.'
+    hidden: false
+  viralrecon.min_barcode_reads:
+    description: Minimum number of raw reads required per sample/barcode in order
+      to be considered for the downstream processing steps.
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.min_guppyplex_reads:
+    description: Minimum number of reads required after the artic guppyplex process
+      per sample/barcode in order to be considered for the downstream processing steps.
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.artic_minion_caller:
+    description: 'Variant caller used when running artic minion (default: ''nanopolish'').'
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.artic_minion_aligner:
+    description: 'Aligner used when running artic minion (default: ''minimap2'').'
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.artic_scheme:
+    description: Primer scheme recognised by the artic minion command.
+    group: nanopore_options
+    help: e.g. '--artic_scheme ncov-2019'. See https://artic.readthedocs.io/en/latest/primer-schemes/
+      and https://github.com/artic-network/primer-schemes/blob/master/schemes_manifest.json.
+    hidden: false
+  viralrecon.artic_minion_medaka_model:
+    description: Parameter passed to artic minion and required when using the '--artic_minion_caller
+      medaka' workflow.
+    group: nanopore_options
+    help: See https://github.com/nanoporetech/medaka
+    hidden: false
+  viralrecon.skip_pycoqc:
+    description: Skip pycoQC.
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.skip_nanoplot:
+    description: Skip NanoPlot.
+    group: nanopore_options
+    help: ''
+    hidden: false
+  viralrecon.nextclade_dataset:
+    description: Full path to Nextclade dataset required for 'nextclade run' command.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.nextclade_dataset_name:
+    description: Name of Nextclade dataset to retrieve. A list of available datasets
+      can be obtained using the 'nextclade dataset list' command.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.nextclade_dataset_reference:
+    description: Accession id to download dataset based on a particular reference
+      sequence. A list of available datasets can be obtained using the 'nextclade
+      dataset list' command.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.nextclade_dataset_tag:
+    description: Version tag of the dataset to download. A list of available datasets
+      can be obtained using the 'nextclade dataset list' command.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.asciigenome_read_depth:
+    description: Maximum read depth used to generate ASCIIGenome screenshots for variant
+      locii.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.asciigenome_window_size:
+    description: Maximum window size before and after variant locii used to generate
+      ASCIIGenome screenshots.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.multiqc_title:
+    description: Custom title for the MultiQC report.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: true
+  viralrecon.multiqc_config:
+    description: Custom config file to supply to MultiQC.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: true
+  viralrecon.max_multiqc_email_size:
+    description: File size limit when attaching MultiQC reports to summary emails.
+    group: nanopore_illumina_options
+    help: If file generated by pipeline exceeds the threshold, it will not be attached.
+    hidden: true
+  viralrecon.skip_mosdepth:
+    description: Skip genome-wide and amplicon coverage plot generation from mosdepth
+      output.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_pangolin:
+    description: Skip Pangolin lineage analysis for genome consensus sequence.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_nextclade:
+    description: Skip Nextclade clade assignment, mutation calling, and sequence quality
+      checks for genome consensus sequence.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_asciigenome:
+    description: Skip variant screenshot generation with ASCIIGenome.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_variants_quast:
+    description: Skip generation of QUAST aggregated report for consensus sequences.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_variants_long_table:
+    description: Skip long table generation for reporting variants.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.skip_multiqc:
+    description: Skip MultiQC.
+    group: nanopore_illumina_options
+    help: ''
+    hidden: false
+  viralrecon.kraken2_db:
+    description: Full path to Kraken2 database built from host genome.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.kraken2_db_name:
+    description: Name for host genome as recognised by Kraken2 when using the 'kraken2
+      build' command.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.kraken2_variants_host_filter:
+    description: Remove host reads identified by Kraken2 before running variant calling
+      steps in the pipeline.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.kraken2_assembly_host_filter:
+    description: Remove host reads identified by Kraken2 before running aseembly steps
+      in the pipeline.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.save_trimmed_fail:
+    description: Save the trimmed FastQ files in the results directory.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: By default, trimmed FastQ files will not be saved to the results directory.
+      Specify this flag (or set to true in your config file) to copy these files to
+      the results directory when complete.
+    hidden: false
+  viralrecon.skip_fastqc:
+    description: Skip FastQC.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.skip_kraken2:
+    description: Skip Kraken2 process for removing host classified reads.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.skip_fastp:
+    description: Skip the initial read trimming step peformed by fastp.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.skip_cutadapt:
+    description: Skip the amplicon trimming step with Cutadapt when using --protocol
+      amplicon.
+    group: illumina_qc_read_trimming_and_filtering_options
+    help: ''
+    hidden: false
+  viralrecon.variant_caller:
+    description: Specify which variant calling algorithm you would like to use. Available
+      options are 'ivar' (default for '--protocol amplicon') and 'bcftools' (default
+      for '--protocol metagenomic').
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.consensus_caller:
+    description: 'Specify which consensus calling algorithm you would like to use.
+      Available options are ''bcftools'' and ''ivar'' (default: ''bcftools'').'
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.min_mapped_reads:
+    description: Minimum number of mapped reads below which samples are removed from
+      further processing. Some downstream steps in the pipeline will fail if this
+      threshold is too low.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.ivar_trim_noprimer:
+    description: This option unsets the '-e' parameter in 'ivar trim' to discard reads
+      without primers.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.ivar_trim_offset:
+    description: This option sets the '-x' parameter in 'ivar trim' so that reads
+      that occur at the specified offset positions relative to primer positions will
+      also be trimmed.
+    group: illumina_variant_calling_options
+    help: This parameter will need to be set for some amplicon-based sequencing protocols
+      (e.g. SWIFT) as described and implemented [here](https://github.com/andersen-lab/ivar/pull/88)
+    hidden: false
+  viralrecon.filter_duplicates:
+    description: Filtered duplicates reads detected by Picard MarkDuplicates from
+      alignments.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.save_unaligned:
+    description: Save unaligned reads in FastQ format from Bowtie 2 to the results
+      directory.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.save_mpileup:
+    description: Save mpileup files generated when calling variants with iVar variants
+      or iVar consensus.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_ivar_trim:
+    description: Skip iVar primer trimming step. Not recommended for --protocol amplicon.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_markduplicates:
+    description: Skip picard MarkDuplicates step.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_picard_metrics:
+    description: Skip Picard CollectMultipleMetrics steps.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_snpeff:
+    description: Skip SnpEff and SnpSift annotation of variants.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_consensus_plots:
+    description: Skip creation of consensus base density plots.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_consensus:
+    description: Skip genome consensus creation step and any downstream QC.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.skip_variants:
+    description: Specify this parameter to skip all of the variant calling and mapping
+      steps in the pipeline.
+    group: illumina_variant_calling_options
+    help: ''
+    hidden: false
+  viralrecon.assemblers:
+    description: Specify which assembly algorithms you would like to use. Available
+      options are 'spades', 'unicycler' and 'minia'.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.spades_mode:
+    description: 'Specify the SPAdes mode you would like to run (default: ''rnaviral'').'
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.spades_hmm:
+    description: Path to profile HMMs specific for gene/organism to enhance SPAdes
+      assembly.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.blast_db:
+    description: Path to directory or tar.gz archive for pre-built BLAST database.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_bandage:
+    description: Skip Bandage image creation for assembly visualisation.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_blast:
+    description: Skip blastn of assemblies relative to reference genome.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_abacas:
+    description: Skip ABACAS process for assembly contiguation.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_plasmidid:
+    description: Skip assembly report generation by PlasmidID.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_assembly_quast:
+    description: Skip generation of QUAST aggregated report for assemblies.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.skip_assembly:
+    description: Specify this parameter to skip all of the de novo assembly steps
+      in the pipeline.
+    group: illumina_de_novo_assembly_options
+    help: ''
+    hidden: false
+  viralrecon.help:
+    description: Display help text.
+    group: generic_options
+    help: ''
+    hidden: true
+  viralrecon.publish_dir_mode:
+    description: Method used to save pipeline results to output directory.
+    group: generic_options
+    help: The Nextflow `publishDir` option specifies which intermediate files should
+      be saved to the output directory. This option tells the pipeline what method
+      should be used to move these files to the location specified by the `--outdir`
+      parameter. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir)
+      for details.
+    hidden: true
+  viralrecon.email_on_fail:
+    description: Email address for completion summary, only when pipeline fails.
+    group: generic_options
+    help: This works exactly as with `--email`, except emails are only sent if the
+      workflow is not successful.
+    hidden: true
+  viralrecon.plaintext_email:
+    description: Send plain-text email instead of HTML.
+    group: generic_options
+    help: Set to receive plain-text e-mails instead of HTML formatted.
+    hidden: true
+  viralrecon.monochrome_logs:
+    description: Do not use coloured log outputs.
+    group: generic_options
+    help: Set to disable colourful command line output and live life in monochrome.
+    hidden: true
+  viralrecon.tracedir:
+    description: Directory to keep pipeline Nextflow logs and reports.
+    group: generic_options
+    help: ''
+    hidden: true
+  viralrecon.enable_conda:
+    description: Run this workflow with Conda. You can also use '-profile conda' instead
+      of providing this parameter.
+    group: generic_options
+    help: ''
+    hidden: true
+  viralrecon.validate_params:
+    description: Boolean whether to validate parameters against the schema at runtime
+    group: generic_options
+    help: ''
+    hidden: true
+  viralrecon.show_hidden_params:
+    description: Show all params when using `--help`
+    group: generic_options
+    help: By default, parameters set as _hidden_ in the schema are not shown on the
+      command line when a user runs with `--help`. Specifying this option will tell
+      the pipeline to show all parameters.
+    hidden: true
+  viralrecon.max_cpus:
+    description: Maximum number of CPUs that can be requested for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the CPU requirement for each process. Should
+      be an integer e.g. `--max_cpus 1`
+    hidden: true
+  viralrecon.max_memory:
+    description: Maximum amount of memory that can be requested for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the memory requirement for each process. Should
+      be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+    hidden: true
+  viralrecon.max_time:
+    description: Maximum amount of time that can be requested for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the time requirement for each process. Should
+      be a string in the format integer-unit e.g. `--max_time '2.h'`
+    hidden: true
+  viralrecon.custom_config_version:
+    description: Git commit id for Institutional configs.
+    group: institutional_config_options
+    help: 'Provide git commit id for custom Institutional configs hosted at `nf-core/configs`.
+      This was implemented for reproducibility purposes. Default: `master`.
+
+
+      ```bash
+
+      ## Download and use config file with following git commit id
+
+      --custom_config_version d52db660777c4bf36546ddb188ec530c3ada1b96
+
+      ```'
+    hidden: true
+  viralrecon.custom_config_base:
+    description: Base directory for Institutional configs.
+    group: institutional_config_options
+    help: 'If you''re running offline, nextflow will not be able to fetch the institutional
+      config files from the internet. If you don''t need them, then this is not a
+      problem. If you do need them, you should download the files from the repo and
+      tell nextflow where to find them with the `custom_config_base` option. For example:
+
+
+      ```bash
+
+      ## Download and unzip the config files
+
+      cd /path/to/my/configs
+
+      wget https://github.com/nf-core/configs/archive/master.zip
+
+      unzip master.zip
+
+
+      ## Run the pipeline
+
+      cd /path/to/my/data
+
+      nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs-master/
+
+      ```
+
+
+      > Note that the nf-core/tools helper package has a `download` command to download
+      all required pipeline files + singularity containers + institutional configs
+      in one go for you, to make this process easier.'
+    hidden: true
+  viralrecon.config_profile_name:
+    description: Institutional config name.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  viralrecon.config_profile_description:
+    description: Institutional config description.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  viralrecon.config_profile_contact:
+    description: Institutional config contact information.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  viralrecon.config_profile_url:
+    description: Institutional config URL link.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+parameter_group:
+  input_output_options:
+    description: Define where the pipeline should find input data and save output
+      data.
+    help: null
+    title: Input/output options
+  reference_genome_options:
+    description: Options for the reference genome indices used to align reads.
+    help: null
+    title: Reference genome options
+  nanopore_options:
+    description: Options exclusive to running the pipeline on Nanopore data using
+      the ARTIC fieldbioinformatics pipeline.
+    help: null
+    title: Nanopore options
+  nanopore_illumina_options:
+    description: Options common to both the Nanopore and Illumina workflows in the
+      pipeline.
+    help: null
+    title: Nanopore/Illumina options
+  illumina_qc_read_trimming_and_filtering_options:
+    description: Options to adjust QC, read trimming and host read filtering with
+      Kraken2 for the Illumina workflow.
+    help: null
+    title: Illumina QC, read trimming and filtering options
+  illumina_variant_calling_options:
+    description: Various options for the variant calling branch of the Illumina workflow.
+    help: null
+    title: Illumina variant calling options
+  illumina_de_novo_assembly_options:
+    description: Various options for the de novo assembly branch of the Illumina workflow.
+    help: null
+    title: Illumina de novo assembly options
+  generic_options:
+    description: Less common options for the pipeline, typically set in a config file.
+    help: 'These options are common to all nf-core pipelines and allow you to customise
+      some of the core preferences for how the pipeline runs.
+
+
+      Typically these options would be set in a Nextflow config file loaded for all
+      pipeline runs, such as `~/.nextflow/config`.'
+    title: Generic options
+  max_job_request_options:
+    description: Set the top limit for requested resources for any single job.
+    help: 'If you are running on a smaller system, a pipeline step requesting more
+      resources than are available may cause the Nextflow to stop the run with an
+      error. These options allow you to cap the maximum resources requested by any
+      single job so that the pipeline will run on your system.
+
+
+      Note that you can not _increase_ the resources requested by any job using these
+      options. For that you will need your own configuration file. See [the nf-core
+      website](https://nf-co.re/usage/configuration) for details.'
+    title: Max job request options
+  institutional_config_options:
+    description: Parameters used to describe centralised config profiles. These should
+      not be edited.
+    help: The centralised nf-core configuration profiles use a handful of pipeline
+      parameters to describe themselves. This information is then printed to the Nextflow
+      log when you run a pipeline. You should not need to change these values when
+      you run a pipeline.
+    title: Institutional config options
